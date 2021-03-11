@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Screensharing using WebRTC</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+  </head>
+  <body>
+     <input name="name" type="text" id="userId"/><button id="joinBtn">Join to chat</button>
+     <p> Logged in users</p>
+     <div class="messagebox" id="loggedInUsers" style="display:none">
+      </div>
+
+      <label for="message">Whom do you want to connect?:
+        <input type="text" name="message" id="whomToChat" placeholder="Message text" 
+                inputmode="latin" size=60 maxlength=120 >
+        <button id="connectBtn">Connect</button>      
+      </label>
+   
+    <video autoplay></video><br />
+    <button id="initiateBtn">Start Sharing</button>
+    <button id="stopBtn" style="display:none">Stop Sharing</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.1.2/simplepeer.min.js"></script>
+    <script src="./webrtc-handler.js"></script>
+  </body>
+</html>
