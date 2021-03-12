@@ -7,6 +7,7 @@ var joinBtn = document.getElementById('joinBtn');
 var loggedInUsers = document.getElementById('loggedInUsers');
 var connectBtn = document.getElementById('connectBtn');
 var initiator = false;
+var video;
 
 const stunServerConfig = {}
 
@@ -36,18 +37,15 @@ socket.on('notify',(data) => {
     });
 });
 
+
+
 initiateBtn.onclick = (e) => {
   initiator = true;
   socket.emit('initiate');
 }
-
+var whomToConnect;
 connectBtn.onclick = (e) => {
-    var whomToConnect = document.getElementById("whomToChat").value
-    
-}
-
-stopBtn.onclick = (e) => {
-  socket.emit('initiate');
+    whomToConnect = document.getElementById("whomToChat").value  
 }
 
 socket.on('initiate', () => {
@@ -59,11 +57,11 @@ socket.on('initiate', () => {
 function startStream () {
   if (initiator) {
     // get screen stream
-    navigator.mediaDevices.getUserMedia({
+    navigator.mediaDevices.getDisplayMedia({
       video: {
         mediaSource: "screen",
-        width: { max: '100' },
-        height: { max: '100' },
+        width: { max: '400' },
+        height: { max: '400' },
         frameRate: { max: '10' }
       }
     }).then(gotMedia);
@@ -71,8 +69,9 @@ function startStream () {
     gotMedia(null);
   }
 }
-
+var localStream;
 function gotMedia (stream) {
+  localStream = stream;
   if (initiator) {
     var peer = new Peer({
       initiator,
@@ -86,17 +85,25 @@ function gotMedia (stream) {
   }
 
   peer.on('signal', function (data) {
-    socket.emit('offer', JSON.stringify(data));
+    //console.log(data)
+    socket.emit('offer', JSON.stringify({payload:data,username:whomToConnect}));
   });
 
-  socket.on('offer', (data) => {
-    peer.signal(JSON.parse(data));
+  socket.on('offer', (data) => { 
+    console.log(data)
+    let message = JSON.parse(data.payload)
+    whomToConnect=data.username
+    peer.signal(message.payload);
   })
-
+  
   peer.on('stream', function (stream) {
     // got remote video stream, now let's show it in a video tag
-    var video = document.querySelector('video');
+    video = document.querySelector('video');
     video.srcObject = stream;
     video.play();
+    video.srcObject.getVideoTracks().onended=()=>{
+      console.log('event fired')
+      video.srcObject=null;
+    }
   })
 }

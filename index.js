@@ -15,7 +15,12 @@ io.on('connection', (socket) => {
   io.emit("notify",users);
 
   socket.on('offer', (data) => {
-    socket.broadcast.emit('offer', data);
+    let message = JSON.parse(data);
+    //console.log(users.find(s=>s.name===message.username))
+    let userId = users.find(s=>s.name===message.username)?.id
+    console.log(userId)
+    io.to(userId).emit('offer', {payload:data,username:users.find(s=>s.id===socket.id)?.name});
+   //socket.broadcast.emit('offer', message.payload);
   });
 
   socket.on('initiate', () => {
