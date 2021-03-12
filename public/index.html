@@ -10,15 +10,19 @@
      <p> Logged in users</p>
      <div class="messagebox" id="loggedInUsers" style="display:none">
       </div>
-
+    <div id="whomToConnect">
       <label for="message">Whom do you want to connect?:
         <input type="text" name="message" id="whomToChat" placeholder="Message text" 
                 inputmode="latin" size=60 maxlength=120 >
         <button id="connectBtn">Connect</button>      
       </label>
+    </div>
    
     <video autoplay muted="muted"></video><br />
+    <div id="screenShare">
     <button id="initiateBtn">Start Sharing</button>
+    <button id="stopBtn" style="display:none">Stop Sharing</button>
+  </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.1.2/simplepeer.min.js"></script>
     <script src="./webrtc-handler.js"></script>

@@ -6,6 +6,8 @@ var stopBtn = document.getElementById('stopBtn');
 var joinBtn = document.getElementById('joinBtn');
 var loggedInUsers = document.getElementById('loggedInUsers');
 var connectBtn = document.getElementById('connectBtn');
+var whomToConnectDiv = document.getElementById('whomToConnect');
+var screenShare = document.getElementById('screenShare');
 var initiator = false;
 var video;
 
@@ -46,6 +48,7 @@ initiateBtn.onclick = (e) => {
 var whomToConnect;
 connectBtn.onclick = (e) => {
     whomToConnect = document.getElementById("whomToChat").value  
+    console.log(whomToConnect)
 }
 
 socket.on('initiate', () => {
@@ -70,22 +73,25 @@ function startStream () {
   }
 }
 var localStream;
+var peer;
 function gotMedia (stream) {
   localStream = stream;
+  console.log(initiator)
+  console.log(peer)
   if (initiator) {
-    var peer = new Peer({
+     peer = new Peer({
       initiator,
       stream,
       config: stunServerConfig
     });
   } else {
-    var peer = new Peer({
+     peer = new Peer({
       config: stunServerConfig
     });
   }
 
   peer.on('signal', function (data) {
-    //console.log(data)
+    console.log(data)
     socket.emit('offer', JSON.stringify({payload:data,username:whomToConnect}));
   });
 
@@ -101,9 +107,23 @@ function gotMedia (stream) {
     video = document.querySelector('video');
     video.srcObject = stream;
     video.play();
-    video.srcObject.getVideoTracks().onended=()=>{
-      console.log('event fired')
-      video.srcObject=null;
+    screenShare.innerHTML=''
+    whomToConnectDiv.innerHTML=''
+  })
+  peer.on('close', () => {
+    if(!peer.initiator){
+      let tracks = video.srcObject.getTracks();                
+      tracks.forEach(track => track.stop());
+      video.srcObject = null;
     }
   })
+}
+
+
+var stopBtn = document.getElementById('stopBtn')
+stopBtn.onclick=(e)=>{
+  console.log('stop')
+  peer.destroy();
+  initiateBtn.style.display = 'block';
+  stopBtn.style.display = 'none';
 }
