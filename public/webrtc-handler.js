@@ -2,7 +2,6 @@ var Peer = window.SimplePeer;
 var socket = io.connect();
 
 var initiateBtn = document.getElementById('initiateBtn');
-var stopBtn = document.getElementById('stopBtn');
 var joinBtn = document.getElementById('joinBtn');
 var loggedInUsers = document.getElementById('loggedInUsers');
 var connectBtn = document.getElementById('connectBtn');
@@ -55,12 +54,12 @@ connectBtn.onclick = (e) => {
     connectBtn.disabled = true
     connectBtn.innerHTML='Connected'
     connectBtn.classList.replace('btn-outline-primary','btn-primary')
+    initiateBtn.disabled = false
 }
 
 socket.on('initiate', () => {
   startStream();
-  initiateBtn.style.display = 'none';
-  stopBtn.style.display = 'block';
+  initiateBtn.disabled = true;
 })
 
 function startStream () {
@@ -123,13 +122,11 @@ function gotMedia (stream) {
       video.srcObject = null;
     }
   })
+
+  localStream.getVideoTracks()[0].onended = function(){
+    console.log("video ended");
+    peer.destroy();
+    initiateBtn.disabled = true;
+  }
 }
 
-
-var stopBtn = document.getElementById('stopBtn')
-stopBtn.onclick=(e)=>{
-  console.log('stop')
-  peer.destroy();
-  initiateBtn.style.display = 'block';
-  stopBtn.style.display = 'none';
-}
