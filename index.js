@@ -5,13 +5,13 @@ var io = require('socket.io')(http,{
     allowEIO3: true // false by default
   });
 //io = io(http)
-var users = []
+
 
 app.use(express.static('public'));
-
+var users = []
 io.on('connection', (socket) => {
   console.log('user connected');
-
+  
   io.emit("notify",users);
 
   socket.on('offer', (data) => {
@@ -19,6 +19,8 @@ io.on('connection', (socket) => {
     //console.log(users.find(s=>s.name===message.username))
     let userId = users.find(s=>s.name===message.username)?.id
     console.log(userId)
+    console.log(socket.id)
+    console.log(users)
     io.to(userId).emit('offer', {payload:data,username:users.find(s=>s.id===socket.id)?.name});
    //socket.broadcast.emit('offer', message.payload);
   });

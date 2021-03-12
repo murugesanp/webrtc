@@ -24,7 +24,10 @@ const stunServerConfig = {}
 joinBtn.onclick = (e) => {
     var name = document.getElementById("userId").value
     socket.emit('join',{"type":"login","name":name})
-    joinBtn.style.display = 'none';
+    joinBtn.disabled = true
+    joinBtn.innerHTML='Joined'
+    joinBtn.classList.replace('btn-outline-primary','btn-primary')
+    
 }
 
 socket.on('notify',(data) => {
@@ -49,6 +52,9 @@ var whomToConnect;
 connectBtn.onclick = (e) => {
     whomToConnect = document.getElementById("whomToChat").value  
     console.log(whomToConnect)
+    connectBtn.disabled = true
+    connectBtn.innerHTML='Connected'
+    connectBtn.classList.replace('btn-outline-primary','btn-primary')
 }
 
 socket.on('initiate', () => {
@@ -63,9 +69,9 @@ function startStream () {
     navigator.mediaDevices.getDisplayMedia({
       video: {
         mediaSource: "screen",
-        width: { max: '400' },
-        height: { max: '400' },
-        frameRate: { max: '10' }
+        width: { max: '1000' },
+        height: { max: '1000' },
+        frameRate: { max: '20' }
       }
     }).then(gotMedia);
   } else {

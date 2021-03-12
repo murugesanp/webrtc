@@ -4,24 +4,58 @@
     <meta charset="utf-8">
     <title>Screensharing using WebRTC</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
   </head>
+  <style>
+    *{
+      margin: 20px;
+    }
+
+    body{
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
   <body>
-     <input name="name" type="text" id="userId"/><button id="joinBtn">Join to chat</button>
-     <p> Logged in users</p>
-     <div class="messagebox" id="loggedInUsers" style="display:none">
+    <div class="row g-3">
+      <div class="col-auto">
+        <input type="text" style="width: 300px;" class="form-control" id="userId" placeholder="your name">
       </div>
-    <div id="whomToConnect">
+      <div class="col-auto">
+        <button type="submit" id="joinBtn" style="width: 150px; margin-left: -30px;" class="btn btn-outline-primary mb-2 ml-4">Join</button>
+      </div>
+    </div>
+    <!-- <form class="nameBox">
+      <input name="name" placeholder="your name" type="text" id="userId"/>
+      <button class="btn btn-primary" id="joinBtn">Join</button>
+    </form> -->
+   
+      <div class="row g-3" id = 'whomToConnect'>
+        <div class="col-auto">
+          <input type="text" style="width: 300px;" class="form-control" id="whomToChat" placeholder="Whom do you want to connect?">
+        </div>
+        <div class="col-auto">
+          <button type="submit" id="connectBtn" style="width: 150px; margin-left: -30px;" class="btn btn-outline-primary mb-2 ml-4">Connect</button>
+        </div>
+      </div>
+      <h3> Logged in users:</h2>
+        <div class="messagebox" id="loggedInUsers" style="display:none">
+         </div>
+    <!-- <div id="whomToConnect">
       <label for="message">Whom do you want to connect?:
-        <input type="text" name="message" id="whomToChat" placeholder="Message text" 
+        <input type="text" name="message" id="whomToChat" placeholder="Whom do you want to connect?:" 
                 inputmode="latin" size=60 maxlength=120 >
         <button id="connectBtn">Connect</button>      
       </label>
-    </div>
+    </div> -->
    
     <video autoplay muted="muted"></video><br />
     <div id="screenShare">
-    <button id="initiateBtn">Start Sharing</button>
-    <button id="stopBtn" style="display:none">Stop Sharing</button>
+    <button id="initiateBtn" class="btn btn-success">Share Screen</button>
+    <button id="stopBtn" class="btn btn-danger" style="display:none">Stop Sharing</button>
   </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.1.2/simplepeer.min.js"></script>
