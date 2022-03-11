@@ -10,7 +10,7 @@ var screenShare = document.getElementById('screenShare');
 var initiator = false;
 var video;
 
-const stunServerConfig = {}
+//const stunServerConfig = {}
 
 // const stunServerConfig = {
 //   iceServers: [{
@@ -21,24 +21,24 @@ const stunServerConfig = {}
 // };
 
 joinBtn.onclick = (e) => {
-    var name = document.getElementById("userId").value
-    socket.emit('join',{"type":"login","name":name})
-    joinBtn.disabled = true
-    joinBtn.innerHTML='Joined'
-    joinBtn.classList.replace('btn-outline-primary','btn-primary')
-    
+  var name = document.getElementById("userId").value
+  socket.emit('join', { "type": "login", "name": name })
+  joinBtn.disabled = true
+  joinBtn.innerHTML = 'Joined'
+  joinBtn.classList.replace('btn-outline-primary', 'btn-primary')
+
 }
 
-socket.on('notify',(data) => {
-    loggedInUsers.style.display = 'block';
-    while (loggedInUsers.firstChild) {
-        loggedInUsers.removeChild(loggedInUsers.firstChild)
-      }
-    data.forEach(element => {
-        var el = document.createElement("p");
-       el.appendChild(document.createTextNode(element.name))
-       loggedInUsers.appendChild(el);
-    });
+socket.on('notify', (data) => {
+  loggedInUsers.style.display = 'block';
+  while (loggedInUsers.firstChild) {
+    loggedInUsers.removeChild(loggedInUsers.firstChild)
+  }
+  data.forEach(element => {
+    var el = document.createElement("p");
+    el.appendChild(document.createTextNode(element.name))
+    loggedInUsers.appendChild(el);
+  });
 });
 
 
@@ -49,12 +49,12 @@ initiateBtn.onclick = (e) => {
 }
 var whomToConnect;
 connectBtn.onclick = (e) => {
-    whomToConnect = document.getElementById("whomToChat").value  
-    console.log(whomToConnect)
-    connectBtn.disabled = true
-    connectBtn.innerHTML='Connected'
-    connectBtn.classList.replace('btn-outline-primary','btn-primary')
-    initiateBtn.disabled = false
+  whomToConnect = document.getElementById("whomToChat").value
+  console.log(whomToConnect)
+  connectBtn.disabled = true
+  connectBtn.innerHTML = 'Connected'
+  connectBtn.classList.replace('btn-outline-primary', 'btn-primary')
+  initiateBtn.disabled = false
 }
 
 socket.on('initiate', () => {
@@ -62,7 +62,7 @@ socket.on('initiate', () => {
   initiateBtn.disabled = true;
 })
 
-function startStream () {
+function startStream() {
   if (initiator) {
     // get screen stream
     navigator.mediaDevices.getDisplayMedia({
@@ -72,61 +72,64 @@ function startStream () {
         height: { max: '1000' },
         frameRate: { max: '20' }
       }
-    }).then(gotMedia);
+    }).catch(function (err) { console.log("Error in getting media stream " + err) }).then(gotMedia);
   } else {
     gotMedia(null);
   }
 }
 var localStream;
 var peer;
-function gotMedia (stream) {
+function gotMedia(stream) {
   localStream = stream;
   console.log(initiator)
   console.log(peer)
   if (initiator) {
-     peer = new Peer({
+    peer = new Peer({
       initiator,
-      stream,
-      config: stunServerConfig
+      stream
+      //config: stunServerConfig
     });
   } else {
-     peer = new Peer({
-      config: stunServerConfig
+    peer = new Peer({
+      //config: stunServerConfig
     });
   }
 
   peer.on('signal', function (data) {
     console.log(data)
-    socket.emit('offer', JSON.stringify({payload:data,username:whomToConnect}));
+    socket.emit('offer', JSON.stringify({ payload: data, username: whomToConnect }));
   });
 
-  socket.on('offer', (data) => { 
+  socket.on('offer', (data) => {
     console.log(data)
     let message = JSON.parse(data.payload)
-    whomToConnect=data.username
+    whomToConnect = data.username
     peer.signal(message.payload);
   })
-  
+
   peer.on('stream', function (stream) {
+    console.log("got remote video stream, now let's show it in a video tag")
     // got remote video stream, now let's show it in a video tag
     video = document.querySelector('video');
     video.srcObject = stream;
     video.play();
-    screenShare.innerHTML=''
-    whomToConnectDiv.innerHTML=''
+    screenShare.innerHTML = ''
+    whomToConnectDiv.innerHTML = ''
   })
   peer.on('close', () => {
-    if(!peer.initiator){
-      let tracks = video.srcObject.getTracks();                
+    if (!peer.initiator) {
+      let tracks = video.srcObject.getTracks();
       tracks.forEach(track => track.stop());
       video.srcObject = null;
     }
   })
 
-  localStream.getVideoTracks()[0].onended = function(){
-    console.log("video ended");
-    peer.destroy();
-    initiateBtn.disabled = true;
+  if (localStream != null && localStream != undefined) {
+    localStream.getVideoTracks()[0].onended = function () {
+      console.log("video ended");
+      peer.destroy();
+      initiateBtn.disabled = true;
+    }
   }
 }
 
