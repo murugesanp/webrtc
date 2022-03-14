@@ -2,7 +2,6 @@ var Peer = window.SimplePeer;
 var socket = io.connect();
 
 var initiateBtn = document.getElementById('initiateBtn');
-var joinBtn = document.getElementById('joinBtn');
 var loggedInUsers = document.getElementById('loggedInUsers');
 var connectBtn = document.getElementById('connectBtn');
 var whomToConnectDiv = document.getElementById('whomToConnect');
@@ -10,56 +9,129 @@ var screenShare = document.getElementById('screenShare');
 var initiator = false;
 var video;
 
-//const stunServerConfig = {}
-
-// const stunServerConfig = {
-//   iceServers: [{
-//     url: 'turn:13.250.13.83:3478?transport=udp',
-//     username: "YzYNCouZM1mhqhmseWk6",
-//     credential: "YzYNCouZM1mhqhmseWk6"
-//   }]
-// };
-
-joinBtn.onclick = (e) => {
-  var name = document.getElementById("userId").value
-  socket.emit('join', { "type": "login", "name": name })
-  joinBtn.disabled = true
-  joinBtn.innerHTML = 'Joined'
-  joinBtn.classList.replace('btn-outline-primary', 'btn-primary')
-
+function setCookie(name,value,minutes) {
+  var expires = "";
+  if (minutes) {
+      var date = new Date();
+      date.setTime(date.getTime() + (minutes*60*1000));
+      expires = "; expires=" + date.toUTCString();
+  }
+  console.log('set = ' + name + "=" + (value || "")  + expires);
+  document.cookie = name + "=" + (value || "")  + expires;
+}
+function getCookie(name) {
+  console.log(document.cookie);
+  var nameEQ = name + "=";
+  var ca = document.cookie.split(';');
+  for(var i=0;i < ca.length;i++) {
+      var c = ca[i];
+      while (c.charAt(0)==' ') c = c.substring(1,c.length);
+      if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+  }
+  return null;
 }
 
-socket.on('notify', (data) => {
-  loggedInUsers.style.display = 'block';
-  while (loggedInUsers.firstChild) {
-    loggedInUsers.removeChild(loggedInUsers.firstChild)
-  }
-  data.forEach(element => {
-    var el = document.createElement("p");
-    el.appendChild(document.createTextNode(element.name))
-    loggedInUsers.appendChild(el);
+function doAuth() {
+  var http = new XMLHttpRequest();
+  var url = 'https://auth.naea1.uds.lenovo.com/auth/realms/tsahai/protocol/openid-connect/auth'; 
+  var params = 'client_id=tsahai&redirect_uri=' + encodeURIComponent('http://localhost:4200/client') + '&response_type=code&scope=openid&prompt=login&kc_locale=en';
+  location.assign(url + '?' + params);
+}
+
+async function postData(url, data) {
+  var response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    redirect: "follow",
+    body: data
   });
+  return response.json();
+}
+
+function getToken(code) {
+  var url = 'https://auth.naea1.uds.lenovo.com/auth/realms/tsahai/protocol/openid-connect/token'; 
+  var params = 'client_id=tsahai&code=' + code + '&grant_type=authorization_code&redirect_uri=' + encodeURIComponent('http://localhost:4200/client');
+
+  postData(url, params).then(data => {
+    token = data.access_token;
+    localStorage.setItem('token', token);
+    socket.emit('join', { "type": "login", "token": localStorage.getItem('token') })
+    location.assign(window.location.href.split('?')[0]);
+  });
+}
+
+var token = "";
+var otp = "";
+
+window.onload = () => {
+  const urlParams = new URL(document.URL).searchParams;
+  if (urlParams.get('tv_id')) {
+    otp = "123456"
+    socket.emit('join', { "type": "login", "tv_id": urlParams.get('tv_id'), "otp": otp })
+    loggedInUsers.appendChild(document.createTextNode(otp));
+    console.log(otp)
+    return;
+  }
+
+  token = localStorage.getItem('token');
+  console.log(token);
+  if (!token) {
+    console.log(urlParams);
+
+    var code = urlParams.get('code');
+    if (code) {
+      getToken(code);
+    }
+    else {
+      doAuth();
+    }
+  }
+}
+
+// socket.on('notify', (data) => {
+//   loggedInUsers.style.display = 'block';
+//   while (loggedInUsers.firstChild) {
+//     loggedInUsers.removeChild(loggedInUsers.firstChild)
+//   }
+//   data.forEach(element => {
+//     var el = document.createElement("p");
+//     el.appendChild(document.createTextNode(element.name))
+//     loggedInUsers.appendChild(el);
+//   });
+// });
+
+socket.on('del_token', () => {
+  localStorage.setItem('token', '');
 });
 
-
-
-initiateBtn.onclick = (e) => {
-  initiator = true;
-  socket.emit('initiate');
+if (initiateBtn) {
+  initiateBtn.onclick = (e) => {
+    initiator = true;
+    socket.emit('initiate');
+  }
 }
 var whomToConnect;
-connectBtn.onclick = (e) => {
-  whomToConnect = document.getElementById("whomToChat").value
-  console.log(whomToConnect)
-  connectBtn.disabled = true
-  connectBtn.innerHTML = 'Connected'
-  connectBtn.classList.replace('btn-outline-primary', 'btn-primary')
-  initiateBtn.disabled = false
+if (connectBtn) {
+  connectBtn.onclick = (e) => {
+    whomToConnect = document.getElementById("whomToChat").value
+    console.log(whomToConnect)
+    connectBtn.disabled = true
+    connectBtn.innerHTML = 'Connected'
+    connectBtn.classList.replace('btn-outline-primary', 'btn-primary')
+
+    if (initiateBtn) {
+      initiateBtn.disabled = false
+    }
+  }
 }
 
 socket.on('initiate', () => {
   startStream();
-  initiateBtn.disabled = true;
+  if (initiateBtn) {
+    initiateBtn.disabled = true;
+  }
 })
 
 function startStream() {
@@ -79,6 +151,7 @@ function startStream() {
 }
 var localStream;
 var peer;
+var socketId = "";
 function gotMedia(stream) {
   localStream = stream;
   console.log(initiator)
@@ -97,13 +170,19 @@ function gotMedia(stream) {
 
   peer.on('signal', function (data) {
     console.log(data)
-    socket.emit('offer', JSON.stringify({ payload: data, username: whomToConnect }));
+    if (socketId.length === 0) {
+      socket.emit('offer', JSON.stringify({ payload: data, otp: whomToConnect }));
+    }
+    else {
+      socket.emit('offer', JSON.stringify({ payload: data, id: socketId }));
+    }
   });
 
   socket.on('offer', (data) => {
     console.log(data)
     let message = JSON.parse(data.payload)
-    whomToConnect = data.username
+    // whomToConnect = data.username
+    socketId = data.id
     peer.signal(message.payload);
   })
 
@@ -113,8 +192,10 @@ function gotMedia(stream) {
     video = document.querySelector('video');
     video.srcObject = stream;
     video.play();
-    screenShare.innerHTML = ''
-    whomToConnectDiv.innerHTML = ''
+    if (screenShare){
+      screenShare.innerHTML = ''
+      whomToConnectDiv.innerHTML = ''
+    }
   })
   peer.on('close', () => {
     if (!peer.initiator) {
@@ -128,7 +209,9 @@ function gotMedia(stream) {
     localStream.getVideoTracks()[0].onended = function () {
       console.log("video ended");
       peer.destroy();
-      initiateBtn.disabled = true;
+      if (initiateBtn) {
+        initiateBtn.disabled = true;
+      }
     }
   }
 }
