@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Screensharing Client</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+  </head>
+  <style>
+    *{
+      margin: 20px;
+    }
+
+    body{
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+  <body>
+    <div class="row g-3" id = 'whomToConnect'>
+      <div class="col-auto">
+        <input type="text" style="width: 300px;" class="form-control" id="whomToChat" placeholder="OTP code">
+      </div>
+      <div class="col-auto">
+        <button type="submit" id="connectBtn" style="width: 150px; margin-left: -30px;" class="btn btn-outline-primary mb-2 ml-4">Connect</button>
+      </div>
+    </div>
+
+    <div id="screenShare">
+      <button id="initiateBtn" class="btn btn-success" disabled=true>Share Screen</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.1.2/simplepeer.min.js"></script>
+    <script src="../webrtc-handler.js"></script>
+  </body>
+</html>
