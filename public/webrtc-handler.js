@@ -189,6 +189,7 @@ function gotMedia(stream) {
   peer.on('stream', function (stream) {
     console.log("got remote video stream, now let's show it in a video tag")
     // got remote video stream, now let's show it in a video tag
+    document.getElementsByClassName("otp-section")[0].style.display='none';
     video = document.querySelector('video');
     video.srcObject = stream;
     video.play();
@@ -202,6 +203,7 @@ function gotMedia(stream) {
       let tracks = video.srcObject.getTracks();
       tracks.forEach(track => track.stop());
       video.srcObject = null;
+      document.getElementsByClassName("otp-section")[0].style.display='block';
     }
   })
 

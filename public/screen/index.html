@@ -1,34 +1,61 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>Screensharing TV</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
-  </head>
-  <style>
-    *{
-      margin: 20px;
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Screensharing TV</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
+    crossorigin="anonymous"></script>
+</head>
+<style>
+  * {
+    margin: 20px;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: black ;
+  }
+
+  .glow {
+    font-size: 20vw;
+    color: #fff;
+    text-align: center;
+    -webkit-animation: glow 1s ease-in-out infinite alternate;
+    -moz-animation: glow 1s ease-in-out infinite alternate;
+    animation: glow 1s ease-in-out infinite alternate;
+  }
+
+  @-webkit-keyframes glow {
+    from {
+      text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #28e600, 0 0 40px #28e600, 0 0 50px #28e600, 0 0 60px #3de600, 0 0 70px #32e600;
     }
 
-    body{
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
+    to {
+      text-shadow: 0 0 20px #fff, 0 0 30px #7cff4d, 0 0 40px #4dff50, 0 0 50px #6cff4d, 0 0 60px #5bff4d82, 0 0 70px #8dff4d, 0 0 80px #4dff50;
     }
-  </style>
-  <body>
-    <h3>OTP:</h3>
+</style>
+
+<body>
+  <div class="otp-section">
     <div class="messagebox" style="display:block">
-      <p id="loggedInUsers"></p>
+      <p class="glow" id="loggedInUsers"></p>
     </div>
-   
+  </div>
+  <div class="video-section">
     <video autoplay muted="muted"></video><br />
   </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.1.2/simplepeer.min.js"></script>
-    <script src="../webrtc-handler.js"></script>
-  </body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.1.2/simplepeer.min.js"></script>
+  <script src="../webrtc-handler.js"></script>
+</body>
+
 </html>

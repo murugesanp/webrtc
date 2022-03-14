@@ -121,4 +121,4 @@ getToken().then(_ => {
   })
 })
 
-http.listen(4200, () => console.log('Example app listening on port 3000!'))
+http.listen(4200, () => console.log('Example app listening on port 4200!'))
